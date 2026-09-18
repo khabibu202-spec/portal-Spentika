@@ -1,0 +1,6 @@
+{
+  "name": "Portal Tata Usaha - SMP Negeri 3 Kras",
+  "description": "Portal layanan administrasi digital untuk siswa, guru, dan masyarakat SMP Negeri 3 Kras.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
