@@ -804,7 +804,7 @@ export default function App() {
                   icon={Package}
                   title="Peminjaman Aset"
                   description="Layanan peminjaman fasilitas dan aset sekolah secara online (ruangan, perlengkapan, dll)."
-                  href="https://sarpras-lilac.vercel.app/#/portal-peminjaman"
+                  href="https://sarpras-tau.vercel.app/#/portal-peminjaman"
                   badge="Online"
                 />
                 <ServiceCard 
