@@ -29,7 +29,9 @@ import {
   Home,
   LayoutGrid,
   Info,
-  Megaphone
+  Megaphone,
+  UserCheck,
+  ExternalLink
 } from 'lucide-react';
 
 import { PWAInstallButton } from './PWAInstallButton';
@@ -52,17 +54,25 @@ const ServiceCard = ({
   title, 
   description, 
   delay,
-  href
+  href,
+  badge
 }: { 
   icon: any, 
   title: string, 
   description: string, 
   delay: number,
-  href?: string
+  href?: string,
+  badge?: string
 }) => {
   const CardContent = (
     <>
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-cyan-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {badge && (
+        <span className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200/80 shadow-xs flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+          {badge}
+        </span>
+      )}
       <div className="relative z-10 flex flex-row sm:flex-col h-full text-left gap-4 sm:gap-0 items-center sm:items-start">
         <div className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center sm:mb-5 shadow-md sm:shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-500">
           <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -71,7 +81,15 @@ const ServiceCard = ({
           <h3 className="text-base sm:text-xl font-bold text-slate-800 mb-1 sm:mb-3 group-hover:text-blue-600 transition-colors leading-tight">{title}</h3>
           <p className="text-slate-600 text-xs sm:text-sm leading-snug sm:leading-relaxed flex-grow line-clamp-2 sm:line-clamp-none">{description}</p>
           <div className="mt-1 sm:mt-5 flex items-center text-blue-600 text-[13px] sm:text-sm font-bold opacity-100 sm:opacity-0 translate-y-0 sm:translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-            {href ? 'Buka Website' : 'Ajukan Layanan'} <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" />
+            {href ? (
+              <span className="inline-flex items-center">
+                Buka Layanan <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1.5" />
+              </span>
+            ) : (
+              <span className="inline-flex items-center">
+                Ajukan Layanan <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" />
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -730,22 +748,36 @@ export default function App() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
                 <ServiceCard 
-                  delay={0.1}
-                  icon={FileText}
-                  title="Surat Keterangan Aktif"
-                  description="Pengajuan surat keterangan aktif belajar untuk keperluan beasiswa, tunjangan, atau administrasi lainnya."
+                  delay={0.05}
+                  icon={Mail}
+                  title="Pengajuan Surat"
+                  description="Layanan pengajuan berbagai surat keterangan dan dokumen administrasi sekolah secara online melalui SPEGA Mail."
+                  href="https://spega-mail.vercel.app/"
+                  badge="Online"
                 />
                 <ServiceCard 
-                  delay={0.2}
+                  delay={0.1}
+                  icon={UserCheck}
+                  title="Cek Data Siswa"
+                  description="Akses portal Data Online Siswa (DOSIS SPEGA) untuk cek profil, NISN, dan verifikasi data induk siswa secara online."
+                  href="https://dosis-spega-rosy.vercel.app/"
+                  badge="DOSIS"
+                />
+                <ServiceCard 
+                  delay={0.15}
                   icon={Users}
-                  title="Mutasi Siswa"
-                  description="Layanan pengajuan pindah sekolah (mutasi masuk / mutasi keluar) beserta persyaratan administrasinya."
+                  title="Pengajuan Mutasi Siswa"
+                  description="Layanan pengajuan pindah sekolah (mutasi masuk / mutasi keluar) dan validasi data secara online melalui portal DOSIS."
+                  href="https://dosis-spega-rosy.vercel.app/"
+                  badge="Online"
                 />
                 <ServiceCard 
                   delay={0.3}
                   icon={Shield}
-                  title="Legalisir Dokumen"
-                  description="Permohonan legalisir ijazah, rapor, dan dokumen resmi sekolah lainnya untuk alumni dan siswa aktif."
+                  title="Pengajuan Legalisir"
+                  description="Permohonan legalisir ijazah, rapor, dan dokumen resmi sekolah secara online melalui portal SPEGA Mail."
+                  href="https://spega-mail.vercel.app/#/legalisir"
+                  badge="Online"
                 />
                 <ServiceCard 
                   delay={0.4}
@@ -757,7 +789,9 @@ export default function App() {
                   delay={0.5}
                   icon={GraduationCap}
                   title="Layanan Alumni"
-                  description="Pusat informasi dan layanan pendataan alumni, serta legalisir dokumen kelulusan."
+                  description="Pusat informasi dan layanan pendataan alumni serta penelusuran data kelulusan melalui portal DOSIS."
+                  href="https://dosis-spega-rosy.vercel.app/"
+                  badge="Online"
                 />
                 <ServiceCard 
                   delay={0.6}
@@ -770,14 +804,16 @@ export default function App() {
                   icon={Package}
                   title="Peminjaman Aset"
                   description="Layanan peminjaman fasilitas dan aset sekolah secara online (ruangan, perlengkapan, dll)."
-                  href="https://spega-aset.vercel.app/"
+                  href="https://aset-three.vercel.app/"
+                  badge="Online"
                 />
                 <ServiceCard 
                   delay={0.8}
                   icon={BookOpen}
-                  title="Peminjaman Buku Perpus"
-                  description="Akses e-perpus untuk pencarian dan peminjaman buku perpustakaan secara online."
-                  href="https://eperpus-spega3.vercel.app/"
+                  title="Peminjaman Buku"
+                  description="Layanan pencarian katalog, e-perpus, dan peminjaman buku perpustakaan sekolah secara online."
+                  href="https://pepus-ten.vercel.app/"
+                  badge="Online"
                 />
               </div>
             </motion.section>
@@ -818,6 +854,17 @@ export default function App() {
                       <button className="px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-blue-900 font-bold transition-all shadow-lg hover:shadow-xl text-base sm:text-lg">
                         Lacak
                       </button>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-white/10 flex flex-wrap items-center text-xs sm:text-sm text-blue-100 gap-1.5">
+                      <span>Ingin cek kelengkapan data pokok siswa?</span>
+                      <a 
+                        href="https://dosis-spega-rosy.vercel.app/" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center font-bold text-cyan-300 hover:text-white underline underline-offset-2 transition-colors"
+                      >
+                        Buka Portal DOSIS SPEGA <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                      </a>
                     </div>
                   </div>
                   <div className="bg-black/10 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-white/10">
