@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   FileText, 
@@ -28,7 +28,8 @@ import {
   KeyRound,
   Home,
   LayoutGrid,
-  Info
+  Info,
+  Megaphone
 } from 'lucide-react';
 
 import { PWAInstallButton } from './PWAInstallButton';
@@ -113,7 +114,7 @@ const StatCard = ({ value, label, icon: Icon }: { value: string, label: string, 
   </div>
 );
 
-const SettingsModal = ({ isOpen, onClose, adminPin, onUpdatePin, appLogo, setAppLogo }: { isOpen: boolean; onClose: () => void; adminPin: string; onUpdatePin: (pin: string) => void; appLogo: string | null; setAppLogo: (logo: string | null) => void }) => {
+const SettingsModal = ({ isOpen, onClose, adminPin, onUpdatePin, appLogo, setAppLogo, announcement, setAnnouncement }: { isOpen: boolean; onClose: () => void; adminPin: string; onUpdatePin: (pin: string) => void; appLogo: string | null; setAppLogo: (logo: string | null) => void; announcement: string; setAnnouncement: (text: string) => void; }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
@@ -137,7 +138,7 @@ const SettingsModal = ({ isOpen, onClose, adminPin, onUpdatePin, appLogo, setApp
     }
   }, [isOpen]);
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (pin === adminPin) {
       setIsAuthenticated(true);
@@ -227,33 +228,46 @@ const SettingsModal = ({ isOpen, onClose, adminPin, onUpdatePin, appLogo, setApp
                     <h3 className="tracking-tight">Pengaturan Logo</h3>
                   </div>
                   <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm flex flex-col sm:flex-row items-center gap-6 hover:border-blue-200 transition-colors">
-                    <div className="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center border-2 border-dashed border-slate-300 overflow-hidden text-slate-400 hover:text-blue-500 hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer group relative">
+                    <div className="w-20 h-20 flex items-center justify-center shrink-0">
                        {appLogo ? (
-                         <img src={appLogo} alt="App Logo" className="w-full h-full object-contain p-2" />
+                         <img src={appLogo} alt="App Logo" className="w-full h-full object-contain" />
                        ) : (
-                         <ImageIcon className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                         <div className="w-full h-full rounded-2xl bg-slate-50 flex items-center justify-center border-2 border-dashed border-slate-300 text-slate-400">
+                           <ImageIcon className="w-8 h-8" />
+                         </div>
                        )}
                     </div>
                     <div className="flex-1 w-full">
                       <p className="text-sm text-slate-500 mb-3">Upload logo institusi dalam format PNG atau SVG dengan background transparan. Ukuran maksimal 2MB.</p>
-                      <label className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-colors w-full sm:w-auto">
-                        <span className="mr-2">Pilih File Baru</span>
-                        <input 
-                          type="file" 
-                          className="hidden" 
-                          accept="image/png, image/svg+xml, image/jpeg" 
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                setAppLogo(event.target?.result as string);
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                        />
-                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-colors w-full sm:w-auto">
+                          <span className="mr-2">Pilih File Baru</span>
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/png, image/svg+xml, image/jpeg" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  setAppLogo(event.target?.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </label>
+                        {appLogo !== '/logo-sekolah.png' && (
+                          <button
+                            type="button"
+                            onClick={() => setAppLogo('/logo-sekolah.png')}
+                            className="px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          >
+                            Reset ke Logo Default
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -300,6 +314,27 @@ const SettingsModal = ({ isOpen, onClose, adminPin, onUpdatePin, appLogo, setApp
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-1.5">Slogan Beranda</label>
                       <textarea rows={4} defaultValue="Portal resmi layanan administrasi dan tata usaha SMP Negeri 3 Kras. Kemudahan akses berbagai layanan surat-menyurat dan informasi sekolah dalam satu genggaman." className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-slate-800 resize-none bg-white leading-relaxed" />
+                    </div>
+                  </div>
+                </section>
+
+                {/* Announcement Section */}
+                <section className="space-y-4">
+                  <div className="flex items-center space-x-2 text-slate-800 font-bold border-b border-slate-100 pb-2">
+                    <Megaphone className="w-5 h-5 text-blue-600" />
+                    <h3 className="tracking-tight">Pengumuman Berjalan (Marquee)</h3>
+                  </div>
+                  <div className="space-y-4 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5">Teks Pengumuman</label>
+                      <textarea 
+                        rows={3} 
+                        value={announcement}
+                        onChange={(e) => setAnnouncement(e.target.value)}
+                        placeholder="Contoh: Libur Semester: Pelayanan TU Tutup sementara dari tanggal 20-25 Desember."
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-slate-800 resize-none bg-white leading-relaxed" 
+                      />
+                      <p className="text-xs text-slate-500 mt-2 font-medium">Kosongkan jika tidak ada pengumuman yang ingin ditampilkan di Beranda.</p>
                     </div>
                   </div>
                 </section>
@@ -400,7 +435,23 @@ export default function App() {
   const [activeView, setActiveView] = useState<View>('beranda');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [adminPin, setAdminPin] = useState('1234');
-  const [appLogo, setAppLogo] = useState<string | null>(null);
+  const [appLogo, setAppLogo] = useState<string>(() => {
+    return localStorage.getItem('tu_app_logo') || '/logo-sekolah.png';
+  });
+
+  useEffect(() => {
+    if (appLogo) {
+      localStorage.setItem('tu_app_logo', appLogo);
+    }
+  }, [appLogo]);
+  const [announcement, setAnnouncement] = useState(() => {
+    return localStorage.getItem('tu_announcement') || '';
+  });
+
+  // Save announcement to local storage
+  useEffect(() => {
+    localStorage.setItem('tu_announcement', announcement);
+  }, [announcement]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -442,13 +493,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo('beranda')}>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25 overflow-hidden">
-                {appLogo ? (
-                  <img src={appLogo} alt="Logo" className="w-full h-full object-contain p-1" />
-                ) : (
-                  <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                )}
-              </div>
+              <img 
+                src={appLogo || '/logo-sekolah.png'} 
+                alt="Logo SMPN 3 Kras" 
+                className="w-10 h-10 sm:w-11 sm:h-11 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/logo-sekolah.png';
+                }}
+              />
               <div>
                 <h1 className="text-base sm:text-lg font-black text-slate-800 tracking-tight leading-none">TU SPENTIKA</h1>
                 <p className="text-[9px] sm:text-[10px] text-blue-600 font-bold tracking-widest uppercase mt-1">SMPN 3 Kras</p>
@@ -533,7 +585,7 @@ export default function App() {
 
       <main className="relative z-10 pt-24 sm:pt-32 pb-32 sm:pb-24 flex-grow">
         <AnimatePresence>
-          {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} adminPin={adminPin} onUpdatePin={setAdminPin} appLogo={appLogo} setAppLogo={setAppLogo} />}
+          {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} adminPin={adminPin} onUpdatePin={setAdminPin} appLogo={appLogo} setAppLogo={setAppLogo} announcement={announcement} setAnnouncement={setAnnouncement} />}
         </AnimatePresence>
         <AnimatePresence mode="wait">
           
@@ -547,6 +599,27 @@ export default function App() {
               transition={{ duration: 0.4 }}
               className="max-w-7xl mx-auto px-6 lg:px-8 pt-4 pb-20"
             >
+              {announcement.trim() !== '' && (
+                <div className="mb-8 overflow-hidden rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 flex items-center">
+                  <div className="px-4 py-3 bg-blue-700 flex items-center shrink-0 z-10 relative">
+                    <Megaphone className="w-5 h-5 mr-2 text-blue-100" />
+                    <span className="font-bold text-sm tracking-wide">INFO TU</span>
+                    {/* decorative triangle */}
+                    <div className="absolute right-[-8px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[12px] border-t-transparent border-l-[8px] border-l-blue-700 border-b-[12px] border-b-transparent"></div>
+                  </div>
+                  <div className="flex-1 overflow-hidden whitespace-nowrap px-4 flex items-center">
+                    {/* We use a simple CSS animation class or just motion.div for marquee */}
+                    <motion.div
+                      animate={{ x: ["100%", "-100%"] }}
+                      transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+                      className="inline-block whitespace-nowrap font-medium"
+                    >
+                      {announcement}
+                    </motion.div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div
                   initial={{ opacity: 0, x: -30 }}
@@ -815,7 +888,7 @@ export default function App() {
       <footer className="border-t border-slate-200 bg-white relative z-10 mt-auto">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <GraduationCap className="w-6 h-6 text-blue-600" />
+            <img src={appLogo || '/logo-sekolah.png'} alt="Logo SMPN 3 Kras" className="w-8 h-8 object-contain" />
             <span className="font-bold text-slate-800">SMPN 3 Kras</span>
           </div>
           <p className="text-slate-500 font-medium text-center md:text-left text-sm">
